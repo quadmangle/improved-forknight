@@ -1,1 +1,4 @@
+[vars]
+ASSET_ID = "ops-transit-broker"
+ALLOWED_ORIGINS = "https://www.opsonlinesupport.com"
 
