@@ -206,6 +206,21 @@ document.addEventListener('DOMContentLoaded', () => {
       const service = translations.services[serviceKey];
       if (service && service.learn) {
         el.setAttribute('href', service.learn);
+        // Make entire card act as a link to the service page
+        card.setAttribute('role', 'link');
+        card.tabIndex = 0;
+        const navigate = () => { window.location.href = service.learn; };
+        card.addEventListener('click', e => {
+          if (!e.target.closest('.learn-more')) {
+            navigate();
+          }
+        });
+        card.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            navigate();
+          }
+        });
       }
       return;
     }
