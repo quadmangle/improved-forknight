@@ -1,1 +1,8 @@
+name = "join-intake"
+main = "worker-join.js"
+compatibility_date = "2024-01-30"
 
+# Uncomment and provide your KV namespace ID to enable persistence
+# kv_namespaces = [
+#   { binding = "JOIN_KV", id = "<your-kv-id>" }
+# ]

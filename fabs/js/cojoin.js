@@ -156,7 +156,10 @@ function initCojoinForms() {
     }
     sanitizedData.nonce = crypto.randomUUID();
     alert('Contact form submitted successfully!');
-    await sendToCloudflareWorker(sanitizedData, 'https://contact-field-3604.gabrieloor-cv1.workers.dev');
+    await sendToCloudflareWorker(
+      sanitizedData,
+      'https://contact-intake.pure-sail-sole.workers.dev'
+    );
     form.reset();
     if (window.hideActiveFabModal) {
       window.hideActiveFabModal();
@@ -194,7 +197,10 @@ function initCojoinForms() {
     }
     sanitizedData.nonce = crypto.randomUUID();
     alert('Join form submitted successfully!');
-    await sendToCloudflareWorker(sanitizedData, 'https://join-grass-733e.gabrieloor-cv1.workers.dev');
+    await sendToCloudflareWorker(
+      sanitizedData,
+      'https://join-intake.pure-sail-sole.workers.dev'
+    );
     form.reset();
     resetJoinFormState();
     if (window.hideActiveFabModal) {
