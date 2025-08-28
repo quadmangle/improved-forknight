@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const contactFab = createFabOption('contact', '<i class="fa fa-envelope"></i>', 'Contact Us');
   const joinFab = createFabOption('join', '<i class="fa fa-user-plus"></i>', 'Join Us');
-  const chatbotFab = createFabOption('chatbot', '<i class="fa fa-comments"></i>', 'Chatbot');
+  const chatbotFab = createFabOption('chatbot', '<i class="fa fa-comments"></i>', 'Chatbot Chattia');
 
   fabOptions.appendChild(contactFab);
   fabOptions.appendChild(joinFab);
