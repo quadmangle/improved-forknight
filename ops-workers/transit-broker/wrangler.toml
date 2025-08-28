@@ -1,3 +1,4 @@
 [vars]
 ASSET_ID = "ops-transit-broker"
+ASSET_URL = "https://ops-transit-broker.pure-sail-sole.workers.dev"
 ALLOWED_ORIGINS = "https://www.opsonlinesupport.com"
