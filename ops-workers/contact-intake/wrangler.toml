@@ -4,6 +4,7 @@ compatibility_date = "2024-01-30"
 [vars]
 ALLOWED_ORIGINS = "https://www.opsonlinesupport.com"
 ASSET_ID = "ops-contact-intake"
+ASSET_URL = "https://ops-contact-intake.pure-sail-sole.workers.dev"
 TRANSIT_URL = "https://ops-transit-broker.pure-sail-sole.workers.dev"
 MAX_BODY_BYTES = "256000"
 MAX_FIELD_BYTES = "5000"
