@@ -330,13 +330,20 @@ li {
   border-top: 1px solid var(--clr-form-border);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
   flex-wrap: wrap;
-  justify-content: flex-start;
+}
+
+.footer-info {
+  flex: 1;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .ops-footer .search-container {
   margin-left: auto;
+  margin-right: 50px;
 }
 
 .ops-footer .sitemap-link {
@@ -347,6 +354,24 @@ li {
 .ops-footer .sitemap-link:hover,
 .ops-footer .sitemap-link:focus {
   text-decoration: underline;
+}
+
+
+@media (max-width: 600px) {
+  .ops-footer {
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+
+  .ops-footer .search-container {
+    margin: 0 auto;
+  }
+
+  #search-input {
+    width: 70vw;
+    max-width: 300px;
+  }
 }
 
 
