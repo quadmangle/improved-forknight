@@ -329,10 +329,14 @@ li {
   font-size: 0.9rem;
   border-top: 1px solid var(--clr-form-border);
   display: flex;
-  justify-content: center;
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.ops-footer .search-container {
+  margin-left: auto;
 }
 
 .ops-footer .sitemap-link {
