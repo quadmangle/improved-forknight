@@ -200,4 +200,3 @@ function mustEnum(v, options, field) {
   if (!options.includes(s)) throw new Error(`invalid ${field}`);
   return s;
 }
-
