@@ -1,1 +1,7 @@
+[vars]
+ALLOWED_ORIGINS = "https://www.opsonlinesupport.com"
+ASSET_ID = "ops-join-intake"
+TRANSIT_URL = "https://ops-transit-broker.pure-sail-sole.workers.dev"
+MAX_BODY_BYTES = "256000"
+MAX_FIELD_BYTES = "5000"
 
