@@ -6,6 +6,8 @@
  * and the dynamic form fields for the Join form.
  */
 
+const CLIENT_ASSET_ID = 'ops-fabs-client'; // Replace with your client asset identifier
+
 function initCojoinForms() {
   const contactForm = document.getElementById('contactForm');
   const joinForm = document.getElementById('joinForm');
@@ -60,6 +62,18 @@ function initCojoinForms() {
     return res.json(); // { token: base64CipherText, iv: base64IV }
   }
 
+  /**
+   * Retrieves the client-side signing key used to create an ECDSA signature
+   * over the sanitized form payload.
+   * @returns {Promise<CryptoKey>} P-384 private key.
+   */
+  async function getSigningKeyFromKms() {
+    const res = await fetch('https://your-server.opsonlinessupport.com/kms/signing-key');
+    const { key } = await res.json(); // base64 encoded PKCS8 material
+    const rawKey = base64ToArrayBuffer(key);
+    return crypto.subtle.importKey('pkcs8', rawKey, { name: 'ECDSA', namedCurve: 'P-384' }, false, ['sign']);
+  }
+
   function arrayBufferToBase64(buffer) {
     return btoa(String.fromCharCode(...new Uint8Array(buffer)));
   }
@@ -73,51 +87,47 @@ function initCojoinForms() {
     return bytes.buffer;
   }
 
+  function canonicalize(obj) {
+    return JSON.stringify(Object.keys(obj).sort().reduce((acc, k) => (acc[k] = obj[k], acc), {}));
+  }
+
   /**
    * Simulated function to send data to a Cloudflare worker.
    * This is where you would implement your data encryption logic before sending.
    * @param {object} data The sanitized form data to send.
    */
   async function sendToCloudflareWorker(data, endpoint) {
-    console.log("Data is clean. Encrypting and sending to Cloudflare worker...", data);
+    console.log('Data is clean. Encrypting and sending to Cloudflare worker...', data);
     try {
-      // Retrieve managed key and short-lived token from the server
-      const [aesKey, tokenInfo] = await Promise.all([
+      const { form, ...fields } = data;
+      const [aesKey, tokenInfo, signKey] = await Promise.all([
         getAesKeyFromKms(),
         getBearerToken(),
+        getSigningKeyFromKms(),
       ]);
 
-      // Encrypt payload using AES-GCM
-      const iv = crypto.getRandomValues(new Uint8Array(12));
       const encoder = new TextEncoder();
-      const encrypted = await crypto.subtle.encrypt(
-        { name: 'AES-GCM', iv },
-        aesKey,
-        encoder.encode(JSON.stringify(data))
-      );
+      const payload = {};
+      for (const [field, value] of Object.entries(fields)) {
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const enc = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, aesKey, encoder.encode(value));
+        payload[field] = { ciphertext: arrayBufferToBase64(enc), iv: arrayBufferToBase64(iv.buffer) };
+      }
 
-      const payload = {
-        iv: Array.from(iv),
-        payload: arrayBufferToBase64(encrypted),
-      };
+      const canonical = canonicalize(fields);
+      const sigBuf = await crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-384' }, signKey, encoder.encode(canonical));
+      const signature = arrayBufferToBase64(sigBuf);
 
-      // Compose Authorization header as Bearer <iv>.<cipher>
       const authHeader = `Bearer ${tokenInfo.iv}.${tokenInfo.token}`;
-
-      // ====================================================================================
-      // IMPORTANT: Cloudflare Worker API Endpoint
-      // Replace the URL below with your actual Cloudflare Worker API endpoint.
-      // ====================================================================================
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': authHeader,
+          'x-client-asset-id': CLIENT_ASSET_ID,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ form, payload, signature }),
       });
-      // [1] KV: https://developers.cloudflare.com/workers/runtime-apis/kv/
-      // Apps Script handles decryption of the stored file
       const result = await response.json().catch(() => null);
 
       if (response.ok) {
@@ -155,12 +165,13 @@ function initCojoinForms() {
       return;
     }
     sanitizedData.nonce = crypto.randomUUID();
+    sanitizedData.assetId = crypto.randomUUID();
+    sanitizedData.form = 'contact';
     alert('Contact form submitted successfully!');
-      sanitizedData.form = 'contact';
-      await sendToCloudflareWorker(
-        sanitizedData,
-        'https://sandwich-worker.pure-sail-sole.workers.dev/core'
-      );
+    await sendToCloudflareWorker(
+      sanitizedData,
+      'https://sandwich-worker.pure-sail-sole.workers.dev/core'
+    );
     form.reset();
     if (window.hideActiveFabModal) {
       window.hideActiveFabModal();
@@ -197,12 +208,13 @@ function initCojoinForms() {
       return;
     }
     sanitizedData.nonce = crypto.randomUUID();
+    sanitizedData.assetId = crypto.randomUUID();
+    sanitizedData.form = 'join';
     alert('Join form submitted successfully!');
-      sanitizedData.form = 'join';
-      await sendToCloudflareWorker(
-        sanitizedData,
-        'https://sandwich-worker.pure-sail-sole.workers.dev/core'
-      );
+    await sendToCloudflareWorker(
+      sanitizedData,
+      'https://sandwich-worker.pure-sail-sole.workers.dev/core'
+    );
     form.reset();
     resetJoinFormState();
     if (window.hideActiveFabModal) {

@@ -21,6 +21,9 @@ export default {
     }
 
     if (request.method === 'POST' && url.pathname === '/core') {
+      if (request.headers.get('x-client-asset-id') !== env.CLIENT_ASSET_ID) {
+        return json({ error: 'forbidden' }, 403, corsHeaders);
+      }
       let input;
       try { input = await request.json(); } catch { return json({ error: 'invalid_json' }, 400, corsHeaders); }
 
@@ -84,7 +87,7 @@ function cors(env, origin) {
     h['Access-Control-Allow-Origin'] = origin;
     h['Vary'] = 'Origin';
     h['Access-Control-Allow-Methods'] = 'POST, OPTIONS, GET';
-    h['Access-Control-Allow-Headers'] = 'content-type, x-asset-id';
+    h['Access-Control-Allow-Headers'] = 'content-type, authorization, x-client-asset-id';
   }
   return h;
 }
