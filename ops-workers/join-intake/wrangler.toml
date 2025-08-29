@@ -8,6 +8,8 @@ ASSET_URL = "https://ops-join-intake.pure-sail-sole.workers.dev"
 TRANSIT_URL = "https://ops-transit-broker.pure-sail-sole.workers.dev"
 MAX_BODY_BYTES = "256000"
 MAX_FIELD_BYTES = "5000"
+UPSTREAM_ASSET_ID = "ops-transit-broker"
+DATA_KEY = "<base64-aes-key>"
 
 # Uncomment and provide your KV namespace ID to enable persistence
 # kv_namespaces = [
