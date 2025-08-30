@@ -7,15 +7,15 @@
  */
 
 // Configuration and cryptography helpers for secure FAB submissions.
-// Replace placeholder keys and URLs with production secrets.
+// Replace placeholder keys and wrapped URLs with production secrets.
 const CFG = {
-  sandwichURL: "https://sandwich-worker.pure-sail-sole.workers.dev/",
+  SANDWICH_URL_WRAPPED: "<base64-wrapped-sandwich-url>",
+  CONTACT_URL_WRAPPED: "<base64-wrapped-contact-url>",
+  JOIN_URL_WRAPPED: "<base64-wrapped-join-url>",
   ASSET_ID: "asset:fabs:v1", policyVer: 1,
   AES_F2S_BASE64: "<base64url-256bit>",          // FABs→Sandwich AES-GCM
   AESKW_URLS_BASE64: "<base64url-256bit>",       // wraps destination URL
-  ASSET_FABS_PRIV_PEM: `-----BEGIN PRIVATE KEY-----\n...PKCS8...\n-----END PRIVATE KEY-----\n`,
-  CONTACT_URL_CLEAR: "https://ops-join-intake.pure-sail-sole.workers.dev/contact",
-  JOIN_URL_CLEAR:    "https://ops-join-intake.pure-sail-sole.workers.dev/join",
+  ASSET_FABS_PRIV_PEM: `-----BEGIN PRIVATE KEY-----\n...PKCS8...\n-----END PRIVATE KEY-----\n`
 };
 let encoder;
 function getEncoder() {
@@ -59,6 +59,11 @@ async function wrapURL(kw, url) {
   const tmp = await crypto.subtle.importKey("raw", raw, { name: "AES-GCM" }, true, []);
   return b64u.e(await crypto.subtle.wrapKey("raw", tmp, kw, "AES-KW"));
 }
+async function unwrapURL(kw, wrapped) {
+  const key = await crypto.subtle.unwrapKey("raw", b64u.d(wrapped), kw, "AES-KW", "raw", true, ["encrypt"]);
+  const raw = await crypto.subtle.exportKey("raw", key);
+  return new TextDecoder().decode(raw);
+}
 async function sign(priv, obj) {
   const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-384" }, priv, getEncoder().encode(canon(obj)));
   return b64u.e(sig);
@@ -68,7 +73,7 @@ const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => 
   const v = c === 'x' ? r : (r & 3 | 8);
   return v.toString(16);
 });
-async function send(type, fields, destClear) {
+async function send(type, fields, destWrapped) {
   const aes = await importAESGCM(CFG.AES_F2S_BASE64);
   const kw = await importAESKW(CFG.AESKW_URLS_BASE64);
   const priv = await importPkcs8(CFG.ASSET_FABS_PRIV_PEM);
@@ -84,11 +89,12 @@ async function send(type, fields, destClear) {
     origin: location.origin,
     ts: Date.now(),
     jti: uuid(),
-    destWrapped: await wrapURL(kw, destClear),
+    destWrapped,
     fields: encFields
   };
   payload.sig = await sign(priv, payload);
-  const r = await fetch(CFG.sandwichURL, {
+  const sandwichURL = await unwrapURL(kw, CFG.SANDWICH_URL_WRAPPED);
+  const r = await fetch(sandwichURL, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(payload)
@@ -141,7 +147,7 @@ function initCojoinForms() {
       return;
     }
     try {
-      await send('contact', sanitizedData, CFG.CONTACT_URL_CLEAR);
+      await send('contact', sanitizedData, CFG.CONTACT_URL_WRAPPED);
       alert('Contact form submitted successfully!');
     } catch (err) {
       console.error('Failed to send contact form:', err);
@@ -183,7 +189,7 @@ function initCojoinForms() {
       return;
     }
     try {
-      await send('join', sanitizedData, CFG.JOIN_URL_CLEAR);
+      await send('join', sanitizedData, CFG.JOIN_URL_WRAPPED);
       alert('Join form submitted successfully!');
     } catch (err) {
       console.error('Failed to send join form:', err);
