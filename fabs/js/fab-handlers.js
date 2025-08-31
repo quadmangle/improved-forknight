@@ -36,6 +36,9 @@ async function handleSubmit(event, workerUrl) {
   }
 
   const formType = form.id === 'contactForm' ? 'contact' : 'join';
+  const assetID = formType === 'contact'
+    ? 'FABs_assetID_llamanos'
+    : 'FABs_assetID_unete';
 
   const validatedData = { skills: [], education: [], certification: [], hobbies: [], continuedEducation: [], experience: [] };
 
@@ -112,7 +115,7 @@ async function handleSubmit(event, workerUrl) {
         signature: Array.from(new Uint8Array(signature)),
         publicKey: Array.from(new Uint8Array(exportedPublicKey)),
         aesKey: Array.from(new Uint8Array(exportedKey)),
-        assetID: 'FABs_assetID_1234'
+        assetID
       })
     });
 
