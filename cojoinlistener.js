@@ -189,6 +189,13 @@ document.addEventListener('DOMContentLoaded', () => {
               console.error('initCojoinForms failed:', err);
             }
           }
+          if (window.initFabHandlers) {
+            try {
+              window.initFabHandlers();
+            } catch (err) {
+              console.error('initFabHandlers failed:', err);
+            }
+          }
           if (modalId === 'chatbot') {
             if (window.initChatbot) { window.initChatbot(); }
             if (window.openChatbot) { window.openChatbot(); }

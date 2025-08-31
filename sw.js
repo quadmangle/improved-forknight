@@ -15,6 +15,7 @@ const urlsToCache = [
   '/js/search-index.json',
   '/js/antibot.js',
   '/fabs/js/cojoin.js',
+  '/fabs/js/fab-handlers.js',
   '/fabs/js/chattia.js',
   '/cojoinlistener.js',
   '/manifest.json',
