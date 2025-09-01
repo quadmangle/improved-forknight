@@ -9,6 +9,8 @@
 function initCojoinForms() {
   const contactForm = document.getElementById('contactForm');
   const joinForm = document.getElementById('joinForm');
+  const CONTACT_WORKER_URL = window.CONTACT_WORKER_URL || 'https://ops-contact-intake.pure-sail-sole.workers.dev';
+  const JOIN_WORKER_URL = window.JOIN_WORKER_URL || 'https://ops-join-intake.pure-sail-sole.workers.dev';
 
   if (contactForm && !contactForm.dataset.cojoinInitialized) {
     if (!contactForm.querySelector('#hp_text')) {
@@ -55,7 +57,7 @@ function initCojoinForms() {
     // IMPORTANT: AES Key Service Endpoint
     // Replace the URL below with your actual endpoint for fetching the AES key.
     // ====================================================================================
-    const res = await fetch('https://your-server.opsonlinessupport.com/kms/aes-key');
+    const res = await fetch('https://your-server.opsonlinesupport.com/kms/aes-key');
     const { key } = await res.json(); // base64 encoded key material
     const rawKey = base64ToArrayBuffer(key);
     return crypto.subtle.importKey('raw', rawKey, { name: 'AES-GCM' }, false, ['encrypt']);
@@ -72,7 +74,7 @@ function initCojoinForms() {
     // IMPORTANT: Auth Token Service Endpoint
     // Replace the URL below with your actual endpoint for fetching the auth token.
     // ====================================================================================
-    const res = await fetch('https://your-server.opsonlinessupport.com/auth/token');
+    const res = await fetch('https://your-server.opsonlinesupport.com/auth/token');
     return res.json(); // { token: base64CipherText, iv: base64IV }
   }
 
@@ -181,7 +183,7 @@ function initCojoinForms() {
     const progress = startEncryptionProgress();
     await sendToCloudflareWorker(
       sanitizedData,
-      'https://ops-contact-intake.pure-sail-sole.workers.dev',
+      CONTACT_WORKER_URL,
       progress
     );
     progress.update(100);
@@ -226,7 +228,7 @@ function initCojoinForms() {
     const progress = startEncryptionProgress();
     await sendToCloudflareWorker(
       sanitizedData,
-      'https://ops-join-intake.pure-sail-sole.workers.dev',
+      JOIN_WORKER_URL,
       progress
     );
     progress.update(100);

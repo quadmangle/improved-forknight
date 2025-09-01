@@ -16,7 +16,7 @@ const hpHtml = fs.readFileSync(path.join(__dirname, '..', 'security', 'honeypots
 const utilsJs = fs.readFileSync(path.join(__dirname, '..', 'js', 'utils.js'), 'utf8');
 const langThemeJs = fs.readFileSync(path.join(__dirname, '..', 'js', 'langtheme.js'), 'utf8');
 test('Chattia closes on ESC and closes on inactivity after minimize', async () => {
-  const dom = new JSDOM(`<body></body>`, { url: 'https://opsonlinessupport.com', runScripts: 'dangerously' });
+  const dom = new JSDOM(`<body></body>`, { url: 'https://www.opsonlinesupport.com', runScripts: 'dangerously' });
   const { window } = dom;
   const document = window.document;
   window.innerWidth = 1024;
@@ -68,7 +68,7 @@ test('Chattia closes on ESC and closes on inactivity after minimize', async () =
 });
 
 test('Chat history persists while minimized and clears on close', async () => {
-  const dom = new JSDOM(`<body></body>`, { url: 'https://opsonlinessupport.com', runScripts: 'dangerously' });
+  const dom = new JSDOM(`<body></body>`, { url: 'https://www.opsonlinesupport.com', runScripts: 'dangerously' });
   const { window } = dom;
   const document = window.document;
   window.innerWidth = 1024;
