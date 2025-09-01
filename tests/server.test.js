@@ -27,7 +27,7 @@ test.describe('API Tests', () => {
 
       const res = await agent
         .post('/api/contact')
-        .send({ csrfToken: token, name: 'Test User', email: 'test@opsonlinessupport.com', message: 'hello' })
+        .send({ csrfToken: token, name: 'Test User', email: 'test@opsonlinesupport.com', message: 'hello' })
         .expect(200);
 
       assert(res.body.ok === true, 'Response should indicate success');
@@ -39,7 +39,7 @@ test.describe('API Tests', () => {
 
       const res = await agent
         .post('/api/contact')
-        .send({ csrfToken: 'invalid-token', name: 'Test User', email: 'test@opsonlinessupport.com', message: 'hello' })
+        .send({ csrfToken: 'invalid-token', name: 'Test User', email: 'test@opsonlinesupport.com', message: 'hello' })
         .expect(403);
 
       assert(res.body.error === 'Invalid CSRF token', 'Response should contain an error message');
@@ -49,7 +49,7 @@ test.describe('API Tests', () => {
       // Get a valid token first to make sure the session is initialized
       await agent.get('/api/csrf-token').expect(200);
 
-      const res = await agent.post('/api/contact').send({ name: 'Test User', email: 'test@opsonlinessupport.com', message: 'hello' }).expect(403);
+      const res = await agent.post('/api/contact').send({ name: 'Test User', email: 'test@opsonlinesupport.com', message: 'hello' }).expect(403);
       assert(res.body.error === 'Invalid CSRF token', 'Response should contain an error message');
     });
   });

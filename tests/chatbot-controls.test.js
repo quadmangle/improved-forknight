@@ -18,7 +18,7 @@ const style = fs.readFileSync(cssPath, 'utf8');
 const hpHtml = fs.readFileSync(path.join(__dirname, '..', 'security', 'honeypots.html'), 'utf8');
 
 test('Chatbot header controls and send button work', async () => {
-  const dom = new JSDOM(`<body></body>`, { url: 'https://opsonlinessupport.com', runScripts: 'dangerously' });
+  const dom = new JSDOM(`<body></body>`, { url: 'https://www.opsonlinesupport.com', runScripts: 'dangerously' });
   const { window } = dom;
   const document = window.document;
   window.innerWidth = 1024;
