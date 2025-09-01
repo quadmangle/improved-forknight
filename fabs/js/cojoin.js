@@ -9,6 +9,8 @@
 function initCojoinForms() {
   const contactForm = document.getElementById('contactForm');
   const joinForm = document.getElementById('joinForm');
+  const CONTACT_WORKER_URL = window.CONTACT_WORKER_URL || 'https://ops-contact-intake.pure-sail-sole.workers.dev';
+  const JOIN_WORKER_URL = window.JOIN_WORKER_URL || 'https://ops-join-intake.pure-sail-sole.workers.dev';
 
   if (contactForm && !contactForm.dataset.cojoinInitialized) {
     if (!contactForm.querySelector('#hp_text')) {

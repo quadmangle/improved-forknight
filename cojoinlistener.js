@@ -6,7 +6,7 @@
  * logic and dynamically loads the modal content from the 'fabs' directory.
  */
 
-document.addEventListener('DOMContentLoaded', () => {
+function initFabListeners() {
 
   const body = document.body;
 
@@ -285,5 +285,10 @@ document.addEventListener('DOMContentLoaded', () => {
       window.initDraggableModal(activeModal);
     }
   });
+}
 
-});
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initFabListeners);
+} else {
+  initFabListeners();
+}
