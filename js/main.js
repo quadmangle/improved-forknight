@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       document.addEventListener('keydown', trapFocus);
       // Delay adding outside click handler so the opening click doesn't trigger it
-      setTimeout(() => document.addEventListener('click', handleClickOutside));
+      setTimeout(() => document.body.addEventListener('click', handleClickOutside));
     }
 
     function closeMenu() {
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         navBackdrop.removeEventListener('click', closeMenu);
       }
       document.removeEventListener('keydown', trapFocus);
-      document.removeEventListener('click', handleClickOutside);
+      document.body.removeEventListener('click', handleClickOutside);
       if (lastFocusedElement) {
         lastFocusedElement.focus();
       }

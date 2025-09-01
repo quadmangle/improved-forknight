@@ -65,7 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
     recognition.maxAlternatives = 1;
 
     voiceSearchButton.addEventListener('click', () => {
-      recognition.start();
+      try {
+        recognition.start();
+      } catch (err) {
+        console.error('Speech recognition start error:', err);
+      }
     });
 
     recognition.onresult = (event) => {
@@ -77,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
     recognition.onerror = (event) => {
       console.error('Speech recognition error:', event.error);
     };
-
   } else if (voiceSearchButton) {
     voiceSearchButton.style.display = 'none';
   }

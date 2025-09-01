@@ -18,7 +18,7 @@ test('chatbot minimize positions open button above FAB by 10px and centers horiz
     const fabCss = fs.readFileSync(path.join(root, 'fabs', 'css', 'cojoin.css'), 'utf8');
 
   const dom = new JSDOM('<!DOCTYPE html><body></body>', {
-    url: 'https://opsonlinessupport.com',
+    url: 'https://www.opsonlinesupport.com',
     runScripts: 'dangerously'
   });
   const { window } = dom;
@@ -89,7 +89,7 @@ test('open button repositions correctly on reload when state is minimized', asyn
     const fabCss = fs.readFileSync(path.join(root, 'fabs', 'css', 'cojoin.css'), 'utf8');
 
   const dom = new JSDOM('<!DOCTYPE html><body></body>', {
-    url: 'https://opsonlinessupport.com',
+    url: 'https://www.opsonlinesupport.com',
     runScripts: 'dangerously'
   });
   const { window } = dom;

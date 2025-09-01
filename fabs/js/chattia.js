@@ -1,7 +1,10 @@
 (function(){
-  const WORKER_CHAT_URL = 'https://your-cloudflare-worker.opsonlinessupport.com/chat';
-  const WORKER_END_SESSION_URL = 'https://your-cloudflare-worker.opsonlinessupport.com/end-session';
-  const WORKER_HONEYPOT_URL = 'https://your-cloudflare-worker.opsonlinessupport.com/honeypot-trip';
+  // Worker endpoints can be overridden via window.CHAT_WORKER_BASE (no trailing slash)
+  const DEFAULT_WORKER_BASE = 'https://your-cloudflare-worker.opsonlinesupport.com';
+  const WORKER_BASE = (window.CHAT_WORKER_BASE && window.CHAT_WORKER_BASE.replace(/\/+$/, '')) || DEFAULT_WORKER_BASE;
+  const WORKER_CHAT_URL = `${WORKER_BASE}/chat`;
+  const WORKER_END_SESSION_URL = `${WORKER_BASE}/end-session`;
+  const WORKER_HONEYPOT_URL = `${WORKER_BASE}/honeypot-trip`;
   const INACTIVITY_LIMIT_MS = window.CHATBOT_INACTIVITY_MS || 120000;
   let container, log, form, input, send, closeBtn, minimizeBtn, openBtn;
   let langCtrl, themeCtrl, brand, hpText, hpCheck;
@@ -12,6 +15,7 @@
   }
 
   function buildBrand(text){
+    if(!brand) return;
     brand.innerHTML='';
     let i=0;
     for(const ch of text){
@@ -24,6 +28,7 @@
   }
 
   function addMsg(txt, cls){
+    if(!log) return;
     const div=document.createElement('div');
     div.className='chat-msg '+cls;
     div.textContent=txt;
@@ -41,6 +46,7 @@
   }
 
   function loadHistory(){
+    if(!log) return;
     try{
       const data=sessionStorage.getItem('chatHistory');
       if(!data) return;
@@ -59,10 +65,10 @@
     }catch(e){}
   }
   function lockUIForHoneypot(){
-    send.disabled=true;
-    input.disabled=true;
+    if (send) send.disabled=true;
+    if (input) input.disabled=true;
     addMsg('Security: blocked due to suspicious activity.', 'bot');
-    alert('Security check failed. This session has been blocked.');
+    try { alert('Security check failed. This session has been blocked.'); } catch(e){}
   }
 
   function updateSendEnabled(){
@@ -72,6 +78,7 @@
   }
 
   function autoGrow(){
+    if (!input) return;
     input.style.height='auto';
     const maxPx=48;
     input.style.height=Math.min(input.scrollHeight, maxPx)+'px';
@@ -114,8 +121,8 @@
   }
 
   function clearUIState(){
-    log.innerHTML='';
-    input.value='';
+    if (log) log.innerHTML='';
+    if (input) input.value='';
     autoGrow();
     updateSendEnabled();
     sessionStorage.removeItem('chatHistory');
@@ -123,14 +130,17 @@
 
   function openChat(){
     clearTimeout(inactivityTimer);
+    if (!container) return;
     container.style.display='';
     container.removeAttribute('aria-hidden');
-    openBtn.style.display='none';
-    openBtn.classList.remove('chatbot-reopen');
-    openBtn.style.bottom='';
-    openBtn.style.right='';
-    openBtn.setAttribute('aria-expanded','true');
-    openBtn.removeEventListener('click', openChat);
+    if (openBtn) {
+      openBtn.style.display='none';
+      openBtn.classList.remove('chatbot-reopen');
+      openBtn.style.bottom='';
+      openBtn.style.right='';
+      openBtn.setAttribute('aria-expanded','true');
+      openBtn.removeEventListener('click', openChat);
+    }
     sessionStorage.setItem('chatState','open');
   }
 
@@ -152,15 +162,18 @@
 
   function minimizeChat(){
     saveHistory();
+    if (!container) return;
     container.style.display='none';
     container.setAttribute('aria-hidden','true');
-    openBtn.style.display='inline-flex';
-    openBtn.innerHTML = 'CHAT';
-    openBtn.classList.add('chatbot-reopen');
-    openBtn.setAttribute('aria-expanded','false');
-    openBtn.addEventListener('click', openChat, { once:true });
-    sessionStorage.setItem('chatState','minimized');
-    positionOpenBtn();
+    if (openBtn) {
+      openBtn.style.display='inline-flex';
+      openBtn.innerHTML = 'CHAT';
+      openBtn.classList.add('chatbot-reopen');
+      openBtn.setAttribute('aria-expanded','false');
+      openBtn.addEventListener('click', openChat, { once:true });
+      sessionStorage.setItem('chatState','minimized');
+      positionOpenBtn();
+    }
     clearTimeout(inactivityTimer);
     inactivityTimer = setTimeout(closeChat, INACTIVITY_LIMIT_MS);
   }
@@ -172,7 +185,8 @@
     terminateSession();
     document.removeEventListener('click', outsideClickHandler);
     document.removeEventListener('keydown', escKeyHandler);
-    container.remove();
+    const el = document.getElementById('chatbot-container');
+    if (el && typeof el.remove === 'function') el.remove();
     document.querySelectorAll('#chat-open-btn').forEach(el => el.remove());
     openBtn = null;
   }
@@ -319,12 +333,14 @@
       if(state === 'open'){
         openChat();
       }else if(state === 'minimized'){
-        openBtn.style.display='inline-flex';
-        openBtn.innerHTML = 'CHAT';
-        openBtn.classList.add('chatbot-reopen');
-        openBtn.setAttribute('aria-expanded','false');
-        openBtn.addEventListener('click', openChat, { once:true });
-        positionOpenBtn();
+        if (openBtn) {
+          openBtn.style.display='inline-flex';
+          openBtn.innerHTML = 'CHAT';
+          openBtn.classList.add('chatbot-reopen');
+          openBtn.setAttribute('aria-expanded','false');
+          openBtn.addEventListener('click', openChat, { once:true });
+          positionOpenBtn();
+        }
       }
     }catch(err){
       console.error('Failed to reload chatbot:', err);
