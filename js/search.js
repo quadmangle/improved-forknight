@@ -3,6 +3,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const voiceSearchButton = document.getElementById('voice-search-button');
   const searchInput = document.getElementById('search-input');
   const searchResultsContainer = document.getElementById('search-results');
+
+  // If the required elements are not present, exit early to avoid errors
+  if (!searchButton || !searchInput || !searchResultsContainer) {
+    return;
+  }
+
   let searchIndex = [];
 
   fetch('js/search-index.json')
@@ -51,9 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (SpeechRecognition) {
-    const recognition = new SpeechRecognition();
+  if ('webkitSpeechRecognition' in window && voiceSearchButton) {
+    const recognition = new webkitSpeechRecognition();
     recognition.continuous = false;
     recognition.lang = 'en-US';
     recognition.interimResults = false;
@@ -76,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
     recognition.onerror = (event) => {
       console.error('Speech recognition error:', event.error);
     };
-  } else {
+  } else if (voiceSearchButton) {
     voiceSearchButton.style.display = 'none';
   }
 });
