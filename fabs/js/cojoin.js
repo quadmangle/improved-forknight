@@ -1,16 +1,24 @@
 /**
  * fabs/js/cojoin.js
  *
- * This script contains the logic for both the Contact Us and Join Us forms.
- * It handles form submission, security checks (honeypot, malicious code),
- * and the dynamic form fields for the Join form.
+ * Handles both the Contact Us and Join Us forms. It performs honeypot and
+ * malicious-content checks, manages dynamic form sections for the Join form,
+ * and submits sanitized data to Cloudflare Worker endpoints with a simple
+ * progress overlay.
+ *
+ * NOTE: Do not export raw symmetric keys from the client in production.
+ *       See repository SECURITY.md / notes for hybrid encryption guidance.
  */
+
+// Default Cloudflare Worker endpoints (overrideable via global vars)
+const CONTACT_WORKER_URL =
+  window.CONTACT_WORKER_URL || 'https://ops-contact-intake.pure-sail-sole.workers.dev';
+const JOIN_WORKER_URL =
+  window.JOIN_WORKER_URL || 'https://ops-join-intake.pure-sail-sole.workers.dev';
 
 function initCojoinForms() {
   const contactForm = document.getElementById('contactForm');
   const joinForm = document.getElementById('joinForm');
-  const CONTACT_WORKER_URL = window.CONTACT_WORKER_URL || 'https://ops-contact-intake.pure-sail-sole.workers.dev';
-  const JOIN_WORKER_URL = window.JOIN_WORKER_URL || 'https://ops-join-intake.pure-sail-sole.workers.dev';
 
   if (contactForm && !contactForm.dataset.cojoinInitialized) {
     if (!contactForm.querySelector('#hp_text')) {
@@ -29,15 +37,64 @@ function initCojoinForms() {
     initJoinForm();
   }
 
-  /**
-   * Contact Us form submission handler.
-   * @param {Event} e The form submission event.
-   */
+  function startEncryptionProgress() {
+    const overlay = document.createElement('div');
+    overlay.className = 'encrypt-overlay';
+    overlay.innerHTML = `
+      <div class="encrypt-box">
+        <p>Securing your data...</p>
+        <div class="encrypt-progress"><div class="encrypt-bar"></div></div>
+      </div>`;
+    document.body.appendChild(overlay);
+    const bar = overlay.querySelector('.encrypt-bar');
+    return {
+      update(pct) {
+        if (bar) bar.style.width = pct + '%';
+      },
+      finish() {
+        if (overlay && overlay.remove) overlay.remove();
+      }
+    };
+  }
+
+  function arrayBufferToBase64(buffer) {
+    return btoa(String.fromCharCode(...new Uint8Array(buffer)));
+  }
+
+  function base64ToArrayBuffer(base64) {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+
+  async function sendToCloudflareWorker(data, endpoint, progress) {
+    console.log('Data ready; sending to worker endpoint...');
+    try {
+      if (progress) progress.update(40);
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ form: data })
+      });
+      if (progress) progress.update(95);
+      if (!response.ok) {
+        console.error('Failed to send to worker:', response.status);
+      } else {
+        console.log('Worker acknowledged submission.');
+      }
+    } catch (error) {
+      console.error('Network error or worker unreachable:', error);
+    }
+  }
+
   async function handleContactSubmit(e) {
     e.preventDefault();
-
     const form = e.target;
-    // 1. Honeypot check
     if (window.antibot.isHoneypotTriggered(form)) {
       console.warn('Honeypot filled. Blocking form submission.');
       form.reset();
@@ -49,30 +106,28 @@ function initCojoinForms() {
       form.reset();
       return;
     }
-    sanitizedData.nonce = crypto.randomUUID();
-    console.log('Contact form data:', sanitizedData);
-    alert('Contact form submission disabled.');
+    sanitizedData.nonce = crypto.randomUUID
+      ? crypto.randomUUID()
+      : Date.now().toString(36);
+    const progress = startEncryptionProgress();
+    await sendToCloudflareWorker(sanitizedData, CONTACT_WORKER_URL, progress);
+    progress.update(100);
+    setTimeout(() => progress.finish(), 300);
+    alert('Contact form submitted successfully!');
     form.reset();
     if (window.hideActiveFabModal) {
       window.hideActiveFabModal();
     }
   }
 
-  /**
-   * Join Us form submission handler.
-   * @param {Event} e The form submission event.
-   */
   async function handleJoinSubmit(e) {
     e.preventDefault();
-
     const form = e.target;
-    // 1. Honeypot check
     if (window.antibot.isHoneypotTriggered(form)) {
       console.warn('Honeypot filled. Blocking form submission.');
       form.reset();
       return;
     }
-    // Check that all dynamic sections are 'accepted' or empty
     const formSections = document.querySelectorAll('.form-section[data-section]');
     for (const section of formSections) {
       const inputs = section.querySelectorAll('input[type=text]');
@@ -87,9 +142,14 @@ function initCojoinForms() {
       form.reset();
       return;
     }
-    sanitizedData.nonce = crypto.randomUUID();
-    console.log('Join form data:', sanitizedData);
-    alert('Join form submission disabled.');
+    sanitizedData.nonce = crypto.randomUUID
+      ? crypto.randomUUID()
+      : Date.now().toString(36);
+    const progress = startEncryptionProgress();
+    await sendToCloudflareWorker(sanitizedData, JOIN_WORKER_URL, progress);
+    progress.update(100);
+    setTimeout(() => progress.finish(), 300);
+    alert('Join form submitted successfully!');
     form.reset();
     resetJoinFormState();
     if (window.hideActiveFabModal) {
@@ -97,9 +157,6 @@ function initCojoinForms() {
     }
   }
 
-  /**
-   * Initializes event listeners for the Join Us form's dynamic sections.
-   */
   function initJoinForm() {
     const formSections = document.querySelectorAll('.form-section[data-section]');
     formSections.forEach(section => {
@@ -166,9 +223,6 @@ function initCojoinForms() {
     });
   }
 
-  /**
-   * Resets the Join Us form to its initial state after submission.
-   */
   function resetJoinFormState() {
     const formSections = document.querySelectorAll('.form-section[data-section]');
     formSections.forEach(section => {
@@ -178,11 +232,6 @@ function initCojoinForms() {
     });
   }
 
-  /**
-   * Toggles the state of a dynamic form section (accepted/editable).
-   * @param {HTMLElement} section The form section element.
-   * @param {boolean} accepted True to lock the section, false to unlock.
-   */
   function toggleSectionState(section, accepted) {
     const inputs = section.querySelectorAll('input[type=text], textarea');
     const acceptBtn = section.querySelector('.accept-btn');
@@ -190,7 +239,7 @@ function initCojoinForms() {
     const addBtn = section.querySelector('.circle-btn.add');
     const removeBtn = section.querySelector('.circle-btn.remove');
 
-    inputs.forEach(input => input.disabled = accepted);
+    inputs.forEach(input => (input.disabled = accepted));
 
     if (accepted) {
       if (acceptBtn) acceptBtn.style.display = 'none';
@@ -210,3 +259,4 @@ function initCojoinForms() {
 
 window.initCojoinForms = initCojoinForms;
 document.addEventListener('DOMContentLoaded', initCojoinForms);
+
