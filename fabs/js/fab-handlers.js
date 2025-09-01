@@ -1,11 +1,9 @@
 /**
  * fabs/js/fab-handlers.js
  *
- * Secure handlers for Contact/Join FAB forms. Validates, sanitizes and
- * encrypts form submissions before posting them to the worker endpoint.
- */
-
-const WORKER_URL = 'https://sandwich-worker.pure-sail-sole.workers.dev/';
+ * Handlers for Contact/Join FAB forms. Validates and sanitizes form submissions
+ * without sending data to remote endpoints.
+*/
 
 function sanitize(value) {
   if (!value) return value;
@@ -25,7 +23,7 @@ async function validateField(field, value, maxLength, regex, required = true) {
   return value ? sanitize(value) : value;
 }
 
-async function handleSubmit(event, workerUrl) {
+async function handleSubmit(event) {
   event.preventDefault();
   const form = event.target;
   const formData = new FormData(form);
@@ -76,52 +74,8 @@ async function handleSubmit(event, workerUrl) {
       validatedData.about = await validateField('About', formData.get('about'), 3000, /^[\p{L}0-9\s,.!?-]{0,3000}$/u, false);
     }
 
-    const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt']);
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-
-    const encryptedData = {};
-    for (const [field, value] of Object.entries(validatedData)) {
-      if (Array.isArray(value)) {
-        encryptedData[field] = [];
-        for (const v of value) {
-          const encoded = new TextEncoder().encode(v);
-          const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
-          encryptedData[field].push(Array.from(new Uint8Array(cipher)));
-        }
-      } else if (value) {
-        const encoded = new TextEncoder().encode(value);
-        const cipher = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
-        encryptedData[field] = Array.from(new Uint8Array(cipher));
-      }
-    }
-
-    const ecdsaKey = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-384' }, true, ['sign']);
-    const exportedPublicKey = await crypto.subtle.exportKey('spki', ecdsaKey.publicKey);
-    const signature = await crypto.subtle.sign(
-      { name: 'ECDSA', hash: 'SHA-384' },
-      ecdsaKey.privateKey,
-      new TextEncoder().encode(JSON.stringify(encryptedData))
-    );
-
-    const exportedKey = await crypto.subtle.exportKey('raw', key);
-
-    const response = await fetch(workerUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        formType,
-        encryptedData,
-        iv: Array.from(iv),
-        signature: Array.from(new Uint8Array(signature)),
-        publicKey: Array.from(new Uint8Array(exportedPublicKey)),
-        aesKey: Array.from(new Uint8Array(exportedKey)),
-        assetID
-      })
-    });
-
-    if (!response.ok) throw new Error('Failed to send data to worker');
-
-    alert('Form submitted successfully!');
+    console.log(`${formType} data:`, validatedData);
+    alert('Form submission disabled.');
     form.reset();
     if (window.hideActiveFabModal) {
       window.hideActiveFabModal();
@@ -135,13 +89,13 @@ async function handleSubmit(event, workerUrl) {
 function initFabHandlers() {
   const contact = document.getElementById('contactForm');
   if (contact && !contact.dataset.fabInit) {
-    contact.addEventListener('submit', (e) => handleSubmit(e, WORKER_URL));
+    contact.addEventListener('submit', handleSubmit);
     contact.dataset.fabInit = 'true';
   }
 
   const join = document.getElementById('joinForm');
   if (join && !join.dataset.fabInit) {
-    join.addEventListener('submit', (e) => handleSubmit(e, WORKER_URL));
+    join.addEventListener('submit', handleSubmit);
     join.dataset.fabInit = 'true';
   }
 }
