@@ -51,15 +51,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  if ('webkitSpeechRecognition' in window) {
-    const recognition = new webkitSpeechRecognition();
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.lang = 'en-US';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
     voiceSearchButton.addEventListener('click', () => {
-      recognition.start();
+      try {
+        recognition.start();
+      } catch (err) {
+        console.error('Speech recognition start error:', err);
+      }
     });
 
     recognition.onresult = (event) => {
@@ -71,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
     recognition.onerror = (event) => {
       console.error('Speech recognition error:', event.error);
     };
-
   } else {
     voiceSearchButton.style.display = 'none';
   }
