@@ -1,4 +1,5 @@
 (function() {
+  'use strict';
   const templates = {};
 
   // Preload honeypot templates
@@ -10,7 +11,7 @@
       templates.form = t.content.querySelector('#form-honeypot');
       templates.chat = t.content.querySelector('#chat-honeypot');
     })
-    .catch(() => {});
+    .catch(err => console.error('Failed to load honeypot templates', err));
 
   function injectFormHoneypot(form) {
     if (!form) return;
