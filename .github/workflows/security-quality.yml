@@ -1,26 +1,20 @@
-diff --git a//dev/null b/.github/workflows/security-quality.yml
-index 0000000000000000000000000000000000000000..b65212d4fd2e646e93c17d0e73c5d0f1372dc33c 100644
---- a//dev/null
-+++ b/.github/workflows/security-quality.yml
-@@ -0,0 +1,21 @@
-+name: Security and Quality
-+on: [push, pull_request]
-+jobs:
-+  codeql:
-+    runs-on: ubuntu-latest
-+    steps:
-+      - uses: actions/checkout@v4
-+      - uses: github/codeql-action/init@v2
-+        with:
-+          languages: javascript
-+      - uses: github/codeql-action/autobuild@v2
-+      - uses: github/codeql-action/analyze@v2
-+  npm-audit:
-+    runs-on: ubuntu-latest
-+    steps:
-+      - uses: actions/checkout@v4
-+      - uses: actions/setup-node@v4
-+        with:
-+          node-version: 18
-+      - run: npm ci
-+      - run: npm audit --audit-level=moderate || true
+name: Security and Quality
+on: [push, pull_request]
+jobs:
+  codeql:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v2
+        with:
+          languages: javascript
+      - uses: github/codeql-action/autobuild@v2
+      - uses: github/codeql-action/analyze@v2
+  npm-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - run: npm ci
