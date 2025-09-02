@@ -50,7 +50,6 @@ function initCojoinForms() {
       return;
     }
     sanitizedData.nonce = crypto.randomUUID();
-    console.log('Contact form data:', sanitizedData);
     alert('Contact form submission disabled.');
     form.reset();
     if (window.hideActiveFabModal) {
@@ -88,7 +87,6 @@ function initCojoinForms() {
       return;
     }
     sanitizedData.nonce = crypto.randomUUID();
-    console.log('Join form data:', sanitizedData);
     alert('Join form submission disabled.');
     form.reset();
     resetJoinFormState();

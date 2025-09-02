@@ -69,13 +69,20 @@
     return (text && text.value.trim() !== '') || (check && check.checked);
   }
 
+  function fallbackSanitize(input){
+    if(typeof input !== 'string') return '';
+    return input.replace(/<[^>]*>/g, '');
+  }
+
   function cleanFormData(form){
     if(!form) return null;
     const formData = new FormData(form);
     const sanitized = {};
     const suspicious = /<[^>]*>|javascript:|data:|vbscript:|\b(select|insert|delete|update|drop|union)\b/gi;
     for(const [key, value] of formData.entries()){
-      const cleaned = window.appUtils ? window.appUtils.sanitizeInput(value) : '';
+      const cleaned = (window.appUtils && typeof window.appUtils.sanitizeInput === 'function')
+        ? window.appUtils.sanitizeInput(value)
+        : fallbackSanitize(String(value));
       if(suspicious.test(cleaned)){
         return null;
       }

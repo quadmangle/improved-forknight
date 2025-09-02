@@ -8,13 +8,42 @@ const cookie = require('cookie');
 
 const app = express();
 
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(
-  helmet({
-    hsts: {
-      maxAge: 31536000,
-      includeSubDomains: true,
-      preload: true,
-    },
+  helmet.hsts({
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  })
+);
+app.use(helmet.referrerPolicy({ policy: 'strict-origin-when-cross-origin' }));
+app.use(helmet.crossOriginOpenerPolicy({ policy: 'same-origin' }));
+app.use(helmet.crossOriginResourcePolicy({ policy: 'same-origin' }));
+app.use((req, res, next) => {
+  res.set(
+    'Permissions-Policy',
+    'geolocation=(), microphone=(), camera=(), payment=(), usb=(), accelerometer=(), gyroscope=(), magnetometer=()'
+  );
+  res.set('Cache-Control', 'no-store');
+  next();
+});
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: false,
+    directives: {
+      defaultSrc: ["'none'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:'],
+      fontSrc: ["'self'"],
+      connectSrc: ["'self'"],
+      frameSrc: [],
+      frameAncestors: ["'none'"],
+      formAction: ["'self'"],
+      baseUri: ["'none'"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: []
+    }
   })
 );
 app.use(express.json());

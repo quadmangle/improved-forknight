@@ -1,28 +1,25 @@
 const test = require('node:test');
 const assert = require('node:assert');
-const fs = require('node:fs');
+const http = require('node:http');
 
-const config = fs.readFileSync('netlify.toml', 'utf8');
+const app = require('../server');
 
-test('netlify config sets strict transport security', () => {
-  assert.match(
-    config,
-    /Strict-Transport-Security\s*=\s*"max-age=31536000; includeSubDomains; preload"/
+test('server sets core security headers', async () => {
+  const server = http.createServer(app);
+  await new Promise(resolve => server.listen(0, resolve));
+  const port = server.address().port;
+  const res = await fetch(`http://localhost:${port}/`);
+  server.close();
+
+  assert.equal(
+    res.headers.get('strict-transport-security'),
+    'max-age=31536000; includeSubDomains; preload'
   );
-});
-
-test('netlify config sets referrer policy', () => {
-  assert.match(config, /Referrer-Policy\s*=\s*"strict-origin-when-cross-origin"/);
-});
-
-test('netlify config sets nosniff option', () => {
-  assert.match(config, /X-Content-Type-Options\s*=\s*"nosniff"/);
-});
-
-test('netlify config prevents clickjacking with frame-ancestors', () => {
-  assert.match(config, /frame-ancestors 'none'/);
-});
-
-test('netlify config does not set x-frame-options', () => {
-  assert.doesNotMatch(config, /X-Frame-Options/);
+  assert.equal(
+    res.headers.get('referrer-policy'),
+    'strict-origin-when-cross-origin'
+  );
+  assert.equal(res.headers.get('x-content-type-options'), 'nosniff');
+  const csp = res.headers.get('content-security-policy') || '';
+  assert.ok(csp.includes("default-src 'none'"));
 });

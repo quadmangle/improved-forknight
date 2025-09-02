@@ -18,18 +18,25 @@ const urlsToCache = [
   '/fabs/js/fab-handlers.js',
   '/fabs/js/chattia.js',
   '/cojoinlistener.js',
-  '/manifest.json',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css'
+  '/manifest.json'
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    for (const url of urlsToCache) {
+      try {
+        const response = await fetch(url, { cache: 'no-cache' });
+        if (response.ok) {
+          await cache.put(url, response);
+        } else {
+          console.warn('SW install: skipping', url, response.status);
+        }
+      } catch (err) {
+        console.warn('SW install: failed to cache', url, err);
+      }
+    }
+  })());
 });
 
 self.addEventListener('fetch', event => {
