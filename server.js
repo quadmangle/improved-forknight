@@ -16,6 +16,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 const cookie = require('cookie');
+const lusca = require('lusca');
 
 const app = express();
 
@@ -68,6 +69,7 @@ app.use(
     },
   })
 );
+app.use(lusca.csrf());
 
 // ---------- Helpers ----------
 function generateToken() {
@@ -134,9 +136,8 @@ app.use('/api/', requireNonce);
 
 // Issue a CSRF token (separate from nonce). Client should send it back in body.
 app.get('/api/csrf-token', (req, res) => {
-  const token = generateToken();
-  req.session.csrfToken = { value: token, expires: Date.now() + 10 * 60 * 1000 };
-  return res.json({ token });
+  // lusca adds req.csrfToken (getter) after csrf middleware
+  return res.json({ token: req.csrfToken });
 });
 
 // Example validated form: Contact
