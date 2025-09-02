@@ -32,10 +32,11 @@ body {
   gap: 15px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .fab-container {
     right: auto;
     left: 15px;
+    bottom: 80px;
   }
 }
 

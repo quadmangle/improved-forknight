@@ -11,30 +11,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let searchIndex = [];
 
-  const buildIndex = async () => {
+  const loadIndex = async () => {
     try {
-      const res = await fetch('sitemap.xml');
-      const xmlText = await res.text();
-      const parser = new DOMParser();
-      const xml = parser.parseFromString(xmlText, 'application/xml');
-      const locs = Array.from(xml.querySelectorAll('loc'));
-      await Promise.all(locs.map(async (locEl) => {
-        const url = new URL(locEl.textContent, window.location.origin);
-        const pageRes = await fetch(url.pathname);
-        const html = await pageRes.text();
-        const tmp = document.createElement('div');
-        tmp.innerHTML = html;
-        searchIndex.push({
-          url: url.pathname.replace(/^\//, ''),
-          content: tmp.textContent || ''
-        });
-      }));
+      const res = await fetch('js/search-index.json');
+      if (!res.ok) throw new Error('Failed to load search index');
+      searchIndex = await res.json();
     } catch (err) {
-      console.error('Error building search index:', err);
+      console.error('Error loading search index:', err);
     }
   };
 
-  buildIndex();
+  loadIndex();
 
   const performSearch = () => {
     const query = searchInput.value.toLowerCase().trim();

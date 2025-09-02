@@ -9,13 +9,17 @@ const helmet = require('helmet');
 const fs = require('fs');
 const path = require('path');
 
+function stripHTML(html) {
+  return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 function buildSearchIndex() {
   const pages = ['index.html', 'contact-center.html', 'it-support.html', 'professional-services.html'];
   const index = pages.map((file) => {
     const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
-    return { file, length: content.length };
+    return { url: file, content: stripHTML(content) };
   });
-  fs.writeFileSync(path.join(__dirname, 'search-index.json'), JSON.stringify(index));
+  fs.writeFileSync(path.join(__dirname, 'js', 'search-index.json'), JSON.stringify(index, null, 2));
   console.log(`Search index built for ${index.length} pages`);
 }
 
@@ -25,12 +29,6 @@ function startServer(port = process.env.PORT || 3000) {
   app.use(express.static(__dirname));
   app.get('/health', (req, res) => res.json({ status: 'ok' }));
   app.listen(port, () => console.log(`Server running on http://localhost:${port}`));
-}
-
-function writeServiceWorker() {
-  const sw = `self.addEventListener('install', e => self.skipWaiting());\nself.addEventListener('fetch', e => e.respondWith(fetch(e.request)));`;
-  fs.writeFileSync(path.join(__dirname, 'sw.js'), sw);
-  console.log('Service worker written');
 }
 
 async function nonceWorker() {
@@ -47,9 +45,6 @@ if (require.main === module) {
     case 'build-search':
       buildSearchIndex();
       break;
-    case 'write-sw':
-      writeServiceWorker();
-      break;
     case 'nonce-worker':
       nonceWorker().then(console.log);
       break;
@@ -61,4 +56,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { buildSearchIndex, startServer, writeServiceWorker, nonceWorker, transitBroker };
+module.exports = { buildSearchIndex, startServer, nonceWorker, transitBroker };
