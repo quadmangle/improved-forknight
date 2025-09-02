@@ -21,47 +21,38 @@
 
     // 3. If DOMPurify is not available, use a fallback sanitization method.
     console.warn('DOMPurify not found. Falling back to basic sanitization.');
-
-    // Regex to find and remove common malicious patterns.
-    // This looks for script tags, javascript:/data:/vbscript: protocols, and on* event handlers.
-    const maliciousPatterns = /<script.*?>.*?<\/script>|javascript:|data:|vbscript:|on\w+=|onerror=|onload=|<\w+[^>]*\s+[^>]*on\w+=/ig;
-    // Apply the replacement repeatedly until no further changes occur.
-    let cleaned = input;
-    let previous;
-    do {
-      previous = cleaned;
-      cleaned = cleaned.replace(maliciousPatterns, '');
-    } while (cleaned !== previous);
-
+    // REMOVE regex-based sanitization. Use DOM-based or plaintext fallback only.
+    // This function now relies on DOM parsing and .textContent, or strict plaintext in non-browser envs.
     // Use the browser's own parser to strip any remaining HTML tags.
-    // This is safer than using regex for HTML parsing.
+    // .textContent ensures no HTML is interpreted.
     if (typeof document !== 'undefined') {
       try {
         const div = document.createElement('div');
-        div.textContent = cleaned;
-        // By reading textContent back, we ensure no HTML is interpreted.
+        div.textContent = input;
+        // By reading textContent back, we ensure no HTML is interpreted, including invalid tags.
         return div.textContent;
       } catch (e) {
-        // Fallback for environments without a DOM or with other issues.
-        // Repeatly remove HTML tags until no further matches are found
-        let result = cleaned;
-        let prev;
+        // Fallback: very strict replacement in rare environments without working DOM.
+        // Apply the tag-removal regex repeatedly until the string stops changing
+        let sanitized = String(input);
+        let previous;
         do {
-          prev = result;
-          result = result.replace(/<[^>]*>/g, '');
-        } while (result !== prev);
-        return result;
+          previous = sanitized;
+          sanitized = sanitized.replace(/<.*?>/g, '');
+        } while (sanitized !== previous);
+        return sanitized.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
       }
     }
 
-    // Final fallback for non-browser environments.
-    let result = cleaned;
-    let prev;
+    // Final fallback for non-browser environments: strict removal of all potential tags.
+    // Apply the tag-removal regex repeatedly until the string stops changing
+    let sanitized = String(input);
+    let previous;
     do {
-      prev = result;
-      result = result.replace(/<[^>]*>/g, '');
-    } while (result !== prev);
-    return result;
+      previous = sanitized;
+      sanitized = sanitized.replace(/<.*?>/g, '');
+    } while (sanitized !== previous);
+    return sanitized.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
   }
 
   /**
