@@ -1,4 +1,4 @@
-(function(){
+(function() {
   const templates = {};
 
   // Preload honeypot templates
@@ -10,12 +10,12 @@
       templates.form = t.content.querySelector('#form-honeypot');
       templates.chat = t.content.querySelector('#chat-honeypot');
     })
-    .catch(()=>{});
+    .catch(() => {});
 
-  function injectFormHoneypot(form){
-    if(!form) return;
+  function injectFormHoneypot(form) {
+    if (!form) return;
     let node;
-    if(templates.form){
+    if (templates.form) {
       node = templates.form.content.cloneNode(true);
     } else {
       const div = document.createElement('div');
@@ -28,17 +28,17 @@
       node = div;
     }
     const firstField = form.querySelector('input, select, textarea, button');
-    if(firstField && firstField.parentNode === form){
+    if (firstField && firstField.parentNode === form) {
       form.insertBefore(node, firstField);
     } else {
       form.prepend(node);
     }
   }
 
-  function injectChatbotHoneypot(form){
-    if(!form) return;
+  function injectChatbotHoneypot(form) {
+    if (!form) return;
     let node;
-    if(templates.chat){
+    if (templates.chat) {
       node = templates.chat.content.cloneNode(true);
     } else {
       const div = document.createElement('div');
@@ -56,14 +56,14 @@
       node = div;
     }
     const firstField = form.querySelector('input, select, textarea, button');
-    if(firstField && firstField.parentNode === form){
+    if (firstField && firstField.parentNode === form) {
       form.insertBefore(node, firstField);
     } else {
       form.prepend(node);
     }
   }
 
-  function isHoneypotTriggered(root){
+  function isHoneypotTriggered(root) {
     const text = root ? root.querySelector('#hp_text') : null;
     const check = root ? root.querySelector('#hp_check') : null;
     return (text && text.value.trim() !== '') || (check && check.checked);
@@ -84,6 +84,7 @@
         ? window.appUtils.sanitizeInput(value)
         : fallbackSanitize(String(value));
       if(suspicious.test(cleaned)){
+
         return null;
       }
       sanitized[key] = cleaned;
