@@ -32,20 +32,29 @@
 </head>
 <body class="page-professional-services">
   <nav class="ops-nav">
-    <a href="index.html" class="ops-logo" aria-label="OPS Home">OPS</a>
-    <div class="nav-links" id="primary-nav">
-      <a href="index.html" class="nav-link" data-key="nav-business-ops">Business Operations</a>
-      <a href="contact-center.html" class="nav-link" data-key="nav-contact-center">Contact Center</a>
-      <a href="it-support.html" class="nav-link" data-key="nav-it-support">IT Support</a>
-      <a href="professional-services.html" class="nav-link active" data-key="nav-professionals">Professionals</a>
+    <div class="nav-top">
+      <a href="index.html" class="ops-logo" aria-label="OPS Home">OPS</a>
+      <div class="search-container">
+        <input type="search" id="search-input" placeholder="Search..." aria-label="Search">
+        <button id="search-button" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+        <button id="voice-search-button" aria-label="Voice Search"><i class="fa-solid fa-microphone" aria-hidden="true"></i></button>
+      </div>
     </div>
-    <div class="toggles">
-      <button type="button" class="toggle-btn lang-toggle" aria-pressed="false" aria-label="" data-aria-label-key="aria-toggle-language">ES</button>
-      <button type="button" class="toggle-btn theme-toggle" aria-label="Toggle theme" aria-pressed="false">Dark</button>
-      <button type="button" class="toggle-btn nav-menu-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="" data-aria-label-key="aria-nav-menu">
-        <i class="fa-solid fa-bars" aria-hidden="true"></i>
-        <span class="sr-only" data-key="nav-menu">Menu</span>
-      </button>
+    <div class="nav-bottom">
+      <div class="nav-links" id="primary-nav">
+        <a href="index.html" class="nav-link" data-key="nav-business-ops">Business Operations</a>
+        <a href="contact-center.html" class="nav-link" data-key="nav-contact-center">Contact Center</a>
+        <a href="it-support.html" class="nav-link" data-key="nav-it-support">IT Support</a>
+        <a href="professional-services.html" class="nav-link active" data-key="nav-professionals">Professionals</a>
+      </div>
+      <div class="toggles">
+        <button type="button" class="toggle-btn lang-toggle" aria-pressed="false" aria-label="" data-aria-label-key="aria-toggle-language">ES</button>
+        <button type="button" class="toggle-btn theme-toggle" aria-label="Toggle theme" aria-pressed="false">Dark</button>
+        <button type="button" class="toggle-btn nav-menu-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="" data-aria-label-key="aria-nav-menu">
+          <i class="fa-solid fa-bars" aria-hidden="true"></i>
+          <span class="sr-only" data-key="nav-menu">Menu</span>
+        </button>
+      </div>
     </div>
   </nav>
 
@@ -91,11 +100,6 @@
     <div class="footer-info">
       <span>© 2025 OPS Online Support.</span>
       <a href="sitemap.xml" class="sitemap-link">Site Map</a>
-    </div>
-    <div class="search-container">
-      <input type="search" id="search-input" placeholder="Search..." aria-label="Search">
-      <button id="search-button" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
-      <button id="voice-search-button" aria-label="Voice Search"><i class="fa-solid fa-microphone" aria-hidden="true"></i></button>
     </div>
   </footer>
   <div id="modal-root"></div>
