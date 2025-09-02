@@ -21,10 +21,8 @@
 
     // 3. If DOMPurify is not available, use a fallback sanitization method.
     console.warn('DOMPurify not found. Falling back to basic sanitization.');
-
     // REMOVE regex-based sanitization. Use DOM-based or plaintext fallback only.
     // This function now relies on DOM parsing and .textContent, or strict plaintext in non-browser envs.
-
     // Use the browser's own parser to strip any remaining HTML tags.
     // .textContent ensures no HTML is interpreted.
     if (typeof document !== 'undefined') {

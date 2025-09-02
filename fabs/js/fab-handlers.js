@@ -49,7 +49,7 @@ async function handleSubmit(event) {
     if (form.id === 'contactForm') {
       validatedData.preferredDate = await validateField('Date', formData.get('preferredDate'), 10, /^\d{4}-\d{2}-\d{2}$/, false);
       validatedData.preferredTime = await validateField('Time', formData.get('preferredTime'), 5, /^\d{2}:\d{2}$/, false);
-      validatedData.comments = await validateField('Comments', formData.get('comments'), 3000, /^[\p{L}0-9\s,.!?-]{0,3000}$/u, false);
+      validatedData.message = await validateField('Message', formData.get('message'), 3000, /^[\p{L}0-9\s,.!?-]{0,3000}$/u, false);
     }
 
     if (form.id === 'joinForm') {
@@ -74,7 +74,6 @@ async function handleSubmit(event) {
       validatedData.about = await validateField('About', formData.get('about'), 3000, /^[\p{L}0-9\s,.!?-]{0,3000}$/u, false);
     }
 
-    console.log(`${formType} data:`, validatedData);
     alert('Form submission disabled.');
     form.reset();
     if (window.hideActiveFabModal) {

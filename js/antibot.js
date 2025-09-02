@@ -69,28 +69,27 @@
     return (text && text.value.trim() !== '') || (check && check.checked);
   }
 
-  // Secure input sanitization using DOMPurify
-  function sanitizeInput(input) {
-    if (typeof DOMPurify !== "undefined") {
-      return DOMPurify.sanitize(input, {ALLOWED_TAGS: [], ALLOWED_ATTR: []}); // strips all HTML
-    }
-    // fallback: basic escaping if DOMPurify is missing
-    return String(input)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+  function fallbackSanitize(input){
+    if(typeof input !== 'string') return '';
+    let previous;
+    do {
+      previous = input;
+      input = input.replace(/<[^>]*>/g, '');
+    } while (input !== previous);
+    return input;
   }
 
-  function cleanFormData(form) {
-    if (!form) return null;
+  function cleanFormData(form){
+    if(!form) return null;
     const formData = new FormData(form);
     const sanitized = {};
-    const suspicious = /javascript:|data:|vbscript:|\b(select|insert|delete|update|drop|union)\b/gi;
-    for (const [key, value] of formData.entries()) {
-      const cleaned = sanitizeInput(value);
-      if (suspicious.test(cleaned)) {
+    const suspicious = /<[^>]*>|javascript:|data:|vbscript:|\b(select|insert|delete|update|drop|union)\b/gi;
+    for(const [key, value] of formData.entries()){
+      const cleaned = (window.appUtils && typeof window.appUtils.sanitizeInput === 'function')
+        ? window.appUtils.sanitizeInput(value)
+        : fallbackSanitize(String(value));
+      if(suspicious.test(cleaned)){
+
         return null;
       }
       sanitized[key] = cleaned;
