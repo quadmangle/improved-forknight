@@ -10,13 +10,20 @@
  *       See repository SECURITY.md / notes for hybrid encryption guidance.
  */
 
-// Default Cloudflare Worker endpoints (overrideable via global vars)
-const CONTACT_WORKER_URL =
-  window.CONTACT_WORKER_URL || 'https://ops-contact-intake.pure-sail-sole.workers.dev';
+// Default Cloudflare Worker endpoint for Join form (overrideable via global var)
 const JOIN_WORKER_URL =
   window.JOIN_WORKER_URL || 'https://ops-join-intake.pure-sail-sole.workers.dev';
 
+async function ensureSession() {
+  try {
+    await fetch('/api/session', { method: 'POST' });
+  } catch (_) {
+    /* ignore session errors */
+  }
+}
+
 function initCojoinForms() {
+  ensureSession();
   const contactForm = document.getElementById('contactForm');
   const joinForm = document.getElementById('joinForm');
 
@@ -70,8 +77,7 @@ function initCojoinForms() {
     return bytes.buffer;
   }
 
-  async function sendToCloudflareWorker(data, endpoint, progress) {
-    console.log('Data ready; sending to worker endpoint...');
+  async function sendJson(data, endpoint, progress) {
     try {
       if (progress) progress.update(40);
       const response = await fetch(endpoint, {
@@ -79,16 +85,14 @@ function initCojoinForms() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ form: data })
+        body: JSON.stringify(data)
       });
       if (progress) progress.update(95);
       if (!response.ok) {
-        console.error('Failed to send to worker:', response.status);
-      } else {
-        console.log('Worker acknowledged submission.');
+        console.error('Request failed:', response.status);
       }
     } catch (error) {
-      console.error('Network error or worker unreachable:', error);
+      console.error('Network error or endpoint unreachable:', error);
     }
   }
 
@@ -100,6 +104,10 @@ function initCojoinForms() {
       form.reset();
       return;
     }
+    const tokenRes = await fetch('/api/csrf-token');
+    const { token } = await tokenRes.json();
+    const csrfField = form.querySelector('#csrfToken');
+    if (csrfField) csrfField.value = token;
     const sanitizedData = window.antibot.cleanFormData(form);
     if (!sanitizedData) {
       alert('Potential malicious content detected. Submission blocked.');
@@ -110,7 +118,7 @@ function initCojoinForms() {
       ? crypto.randomUUID()
       : Date.now().toString(36);
     const progress = startEncryptionProgress();
-    await sendToCloudflareWorker(sanitizedData, CONTACT_WORKER_URL, progress);
+    await sendJson(sanitizedData, '/api/contact', progress);
     progress.update(100);
     setTimeout(() => progress.finish(), 300);
     alert('Contact form submitted successfully!');
@@ -146,7 +154,7 @@ function initCojoinForms() {
       ? crypto.randomUUID()
       : Date.now().toString(36);
     const progress = startEncryptionProgress();
-    await sendToCloudflareWorker(sanitizedData, JOIN_WORKER_URL, progress);
+    await sendJson({ form: sanitizedData }, JOIN_WORKER_URL, progress);
     progress.update(100);
     setTimeout(() => progress.finish(), 300);
     alert('Join form submitted successfully!');

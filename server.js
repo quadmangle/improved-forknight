@@ -39,6 +39,7 @@ app.use(
       httpOnly: true,
       sameSite: 'strict',
       secure: isProduction,
+      maxAge: 30 * 60 * 1000,
     },
   })
 );
