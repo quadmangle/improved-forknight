@@ -99,4 +99,11 @@
     makeDraggable: makeDraggable
   };
 
+  // Provide a global helper for draggable modals used by cojoinlistener.js
+  window.initDraggableModal = function(modal) {
+    if (modal && window.appUtils && typeof window.appUtils.makeDraggable === 'function') {
+      window.appUtils.makeDraggable(modal);
+    }
+  };
+
 })();

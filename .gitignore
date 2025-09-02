@@ -22,3 +22,5 @@ __pycache__/
 *.tmp
 .env
 .env.*
+# Local tools / large binaries
+*.jar

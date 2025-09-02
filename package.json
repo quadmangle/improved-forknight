@@ -2,11 +2,11 @@
   "name": "improved-forknight",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "gestion-test",
   "scripts": {
     "test": "NODE_PATH=./node_modules node --test --test-concurrency=1",
     "build": "npm run build:search && echo \"No build step required\"",
-    "build:search": "node scripts/create-search-index.js"
+    "build:search": "node gestion-test build-search"
   },
   "devDependencies": {
     "jsdom": "26.1.0",

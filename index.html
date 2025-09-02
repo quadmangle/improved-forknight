@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title data-key="title-business-ops">Business Operations | Ops Online Support</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Business operations services and online support from OPS." />
-  <meta name="robots" content="index,follow" />
-  <meta name="recaptcha-site-key" content="YOUR_RECAPTCHA_SITE_KEY" />
-  <link rel="manifest" href="manifest.json" />
-  <script type="application/ld+json">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; form-action 'self'; script-src 'self' 'sha256-4c8551ea60359723cbf8d33588ce9cfc11ba0841b8053ec6720bcea21a63a6eb' 'sha256-9af4270cfe68577b4026bac190e45957f471ba3e3bf6beda4dd353b10d0ccf65' 'sha256-3fa65aa46ad3e855cbc0c69536eb383d3f788f7561d271f7e535982acc173b9a' 'sha256-1712eb7f144fbb26d28e689e5f82933bbd3f876a41bf4551c1764e17ab0aea77' 'sha256-47b5eea8ed1cb5829fecdf8c01e8d2d63018b26330323255d5c5e8c396a14518'; style-src 'self' https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css; img-src 'self' https://placehold.co; font-src 'self' https://cdnjs.cloudflare.com; connect-src 'self' https://your-cloudflare-worker.opsonlinesupport.com; frame-src 'self'; object-src 'none'; base-uri 'self';" />
+      <title data-key="title-business-ops">Business Operations | Ops Online Support</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="description" content="Business operations services and online support from OPS." />
+      <meta name="robots" content="index,follow" />
+      <link rel="manifest" href="manifest.json" />
+      <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Organization",
@@ -28,24 +28,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="fabs/css/cojoin.css">
     <link rel="stylesheet" href="fabs/css/chatbot.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.6/purify.min.js" integrity="sha384-JEyTNhjM6R1ElGoJns4U2Ln4ofPcqzSsynQkmEc/KGy6336qAZl70tDLufbkla+3" crossorigin="anonymous" defer></script>
+    <script src="js/purify.min.js" defer></script>
 </head>
 <body class="page-business-ops">
   <nav class="ops-nav">
-    <a href="index.html" class="ops-logo" aria-label="OPS Home">OPS</a>
-    <div class="nav-links" id="primary-nav">
-      <a href="index.html" class="nav-link active" data-key="nav-business-ops">Business Operations</a>
-      <a href="contact-center.html" class="nav-link" data-key="nav-contact-center">Contact Center</a>
-      <a href="it-support.html" class="nav-link" data-key="nav-it-support">IT Support</a>
-      <a href="professional-services.html" class="nav-link" data-key="nav-professionals">Professionals</a>
+    <div class="nav-top">
+      <a href="index.html" class="ops-logo" aria-label="OPS Home">OPS</a>
+      <div class="search-container">
+        <input type="search" id="search-input" placeholder="Search..." aria-label="Search">
+        <button id="search-button" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+        <button id="voice-search-button" aria-label="Voice Search"><i class="fa-solid fa-microphone" aria-hidden="true"></i></button>
+      </div>
     </div>
-    <div class="toggles">
-      <button type="button" class="toggle-btn lang-toggle" aria-pressed="false" aria-label="" data-aria-label-key="aria-toggle-language">ES</button>
-      <button type="button" class="toggle-btn theme-toggle" aria-pressed="false" aria-label="" data-aria-label-key="aria-toggle-theme">Dark</button>
-      <button type="button" class="toggle-btn nav-menu-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="" data-aria-label-key="aria-nav-menu">
-        <i class="fa-solid fa-bars" aria-hidden="true"></i>
-        <span class="sr-only" data-key="nav-menu">Menu</span>
-      </button>
+    <div class="nav-bottom">
+      <div class="nav-links" id="primary-nav">
+        <a href="index.html" class="nav-link active" data-key="nav-business-ops">Business Operations</a>
+        <a href="contact-center.html" class="nav-link" data-key="nav-contact-center">Contact Center</a>
+        <a href="it-support.html" class="nav-link" data-key="nav-it-support">IT Support</a>
+        <a href="professional-services.html" class="nav-link" data-key="nav-professionals">Professionals</a>
+      </div>
+      <div class="toggles">
+        <button type="button" class="toggle-btn lang-toggle" aria-pressed="false" aria-label="" data-aria-label-key="aria-toggle-language">ES</button>
+        <button type="button" class="toggle-btn theme-toggle" aria-pressed="false" aria-label="" data-aria-label-key="aria-toggle-theme">Dark</button>
+        <button type="button" class="toggle-btn nav-menu-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="" data-aria-label-key="aria-nav-menu">
+          <i class="fa-solid fa-bars" aria-hidden="true"></i>
+          <span class="sr-only" data-key="nav-menu">Menu</span>
+        </button>
+      </div>
     </div>
   </nav>
   <div class="nav-backdrop" hidden></div>
@@ -86,15 +95,10 @@
     </section>
     <div id="search-results"></div>
   </main>
-    <footer class="ops-footer" role="contentinfo">
+  <footer class="ops-footer" role="contentinfo">
     <div class="footer-info">
       <span>© 2025 OPS Online Support.</span>
       <a href="sitemap.xml" class="sitemap-link">Site Map</a>
-    </div>
-    <div class="search-container">
-      <input type="search" id="search-input" placeholder="Search..." aria-label="Search">
-      <button id="search-button" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
-      <button id="voice-search-button" aria-label="Voice Search"><i class="fa-solid fa-microphone" aria-hidden="true"></i></button>
     </div>
   </footer>
   <div id="modal-root"></div>
