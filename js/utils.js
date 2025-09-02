@@ -35,16 +35,26 @@
         return div.textContent;
       } catch (e) {
         // Fallback: very strict replacement in rare environments without working DOM.
-        return String(input)
-          .replace(/<.*?>/g, '')      // Remove whatever looks like a tag, valid or not
-          .replace(/[\u0000-\u001F\u007F-\u009F]/g, ''); // Remove control chars
+        // Apply the tag-removal regex repeatedly until the string stops changing
+        let sanitized = String(input);
+        let previous;
+        do {
+          previous = sanitized;
+          sanitized = sanitized.replace(/<.*?>/g, '');
+        } while (sanitized !== previous);
+        return sanitized.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
       }
     }
 
     // Final fallback for non-browser environments: strict removal of all potential tags.
-    return String(input)
-      .replace(/<.*?>/g, '')      // Remove whatever looks like a tag, valid or not
-      .replace(/[\u0000-\u001F\u007F-\u009F]/g, ''); // Remove control chars
+    // Apply the tag-removal regex repeatedly until the string stops changing
+    let sanitized = String(input);
+    let previous;
+    do {
+      previous = sanitized;
+      sanitized = sanitized.replace(/<.*?>/g, '');
+    } while (sanitized !== previous);
+    return sanitized.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
   }
 
   /**
