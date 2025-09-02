@@ -25,7 +25,13 @@
     // Regex to find and remove common malicious patterns.
     // This looks for script tags, javascript:/data:/vbscript: protocols, and on* event handlers.
     const maliciousPatterns = /<script.*?>.*?<\/script>|javascript:|data:|vbscript:|on\w+=|onerror=|onload=|<\w+[^>]*\s+[^>]*on\w+=/ig;
-    const cleaned = input.replace(maliciousPatterns, '');
+    // Apply the replacement repeatedly until no further changes occur.
+    let cleaned = input;
+    let previous;
+    do {
+      previous = cleaned;
+      cleaned = cleaned.replace(maliciousPatterns, '');
+    } while (cleaned !== previous);
 
     // Use the browser's own parser to strip any remaining HTML tags.
     // This is safer than using regex for HTML parsing.
