@@ -20,18 +20,9 @@
     }
 
     // 3. If DOMPurify is not available, use a fallback sanitization method.
-    console.warn('DOMPurify not found. Falling back to basic sanitization.');
-    // Regex to find and remove common malicious patterns.
-    // This looks for script tags, javascript:/data:/vbscript: protocols, and on* event handlers.
-    const maliciousPatterns = /<script.*?>.*?<\/script>|javascript:|data:|vbscript:|on\w+=|onerror=|onload=|<\w+[^>]*\s+[^>]*on\w+=/ig;
-    let cleaned = input;
-    let prev;
-    do {
-      prev = cleaned;
-      cleaned = cleaned.replace(maliciousPatterns, '');
-    } while (cleaned !== prev);
-    // Use the browser's own parser to strip any remaining HTML tags.
-    // .textContent ensures no HTML is interpreted.
+    console.warn('DOMPurify not found. Falling back to DOM-based sanitization.');
+    // Use the browser's own parser to strip any HTML tags and neutralize content.
+    // .textContent ensures no HTML is interpreted, including malformed and invalid tags.
     if (typeof document !== 'undefined') {
       try {
         const div = document.createElement('div');
@@ -41,7 +32,7 @@
       } catch (e) {
         // Fallback for environments without a DOM or with other issues.
         // Remove any remaining tags (repeatedly) in environments without DOM.
-        let stripped = cleaned;
+        let stripped = input;
         let prevStripped;
         do {
           prevStripped = stripped;
