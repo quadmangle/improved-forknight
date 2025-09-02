@@ -1,0 +1,3 @@
+[vars]
+ASSET_ID = "ops-sheet-logger"
+ALLOWED_ORIGINS = "https://www.opsonlinesupport.com"
