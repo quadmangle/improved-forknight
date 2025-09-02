@@ -25,7 +25,12 @@
     // Regex to find and remove common malicious patterns.
     // This looks for script tags, javascript:/data:/vbscript: protocols, and on* event handlers.
     const maliciousPatterns = /<script.*?>.*?<\/script>|javascript:|data:|vbscript:|on\w+=|onerror=|onload=|<\w+[^>]*\s+[^>]*on\w+=/ig;
-    const cleaned = input.replace(maliciousPatterns, '');
+    let cleaned = input;
+    let prev;
+    do {
+      prev = cleaned;
+      cleaned = cleaned.replace(maliciousPatterns, '');
+    } while (cleaned !== prev);
 
     // Use the browser's own parser to strip any remaining HTML tags.
     // This is safer than using regex for HTML parsing.
@@ -37,12 +42,26 @@
         return div.textContent;
       } catch (e) {
         // Fallback for environments without a DOM or with other issues.
-        return cleaned.replace(/<[^>]*>/g, '');
+        // Remove any remaining tags (repeatedly) in environments without DOM.
+        let stripped = cleaned;
+        let prevStripped;
+        do {
+          prevStripped = stripped;
+          stripped = stripped.replace(/<[^>]*>/g, '');
+        } while (stripped !== prevStripped);
+        return stripped;
       }
     }
 
     // Final fallback for non-browser environments.
-    return cleaned.replace(/<[^>]*>/g, '');
+    // Remove any remaining tags (repeatedly) as final fallback.
+    let stripped = cleaned;
+    let prevStripped;
+    do {
+      prevStripped = stripped;
+      stripped = stripped.replace(/<[^>]*>/g, '');
+    } while (stripped !== prevStripped);
+    return stripped;
   }
 
   /**
