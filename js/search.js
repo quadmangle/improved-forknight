@@ -11,11 +11,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let searchIndex = [];
 
-  fetch('js/search-index.json')
-    .then(response => response.json())
-    .then(data => {
-      searchIndex = data;
-    });
+  const buildIndex = async () => {
+    try {
+      const res = await fetch('sitemap.xml');
+      const xmlText = await res.text();
+      const parser = new DOMParser();
+      const xml = parser.parseFromString(xmlText, 'application/xml');
+      const locs = Array.from(xml.querySelectorAll('loc'));
+      await Promise.all(locs.map(async (locEl) => {
+        const url = new URL(locEl.textContent, window.location.origin);
+        const pageRes = await fetch(url.pathname);
+        const html = await pageRes.text();
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        searchIndex.push({
+          url: url.pathname.replace(/^\//, ''),
+          content: tmp.textContent || ''
+        });
+      }));
+    } catch (err) {
+      console.error('Error building search index:', err);
+    }
+  };
+
+  buildIndex();
 
   const performSearch = () => {
     const query = searchInput.value.toLowerCase().trim();
