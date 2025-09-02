@@ -71,7 +71,12 @@
 
   function fallbackSanitize(input){
     if(typeof input !== 'string') return '';
-    return input.replace(/<[^>]*>/g, '');
+    let previous;
+    do {
+      previous = input;
+      input = input.replace(/<[^>]*>/g, '');
+    } while (input !== previous);
+    return input;
   }
 
   function cleanFormData(form){
