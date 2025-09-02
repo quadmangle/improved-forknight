@@ -37,12 +37,25 @@
         return div.textContent;
       } catch (e) {
         // Fallback for environments without a DOM or with other issues.
-        return cleaned.replace(/<[^>]*>/g, '');
+        // Repeatly remove HTML tags until no further matches are found
+        let result = cleaned;
+        let prev;
+        do {
+          prev = result;
+          result = result.replace(/<[^>]*>/g, '');
+        } while (result !== prev);
+        return result;
       }
     }
 
     // Final fallback for non-browser environments.
-    return cleaned.replace(/<[^>]*>/g, '');
+    let result = cleaned;
+    let prev;
+    do {
+      prev = result;
+      result = result.replace(/<[^>]*>/g, '');
+    } while (result !== prev);
+    return result;
   }
 
   /**
