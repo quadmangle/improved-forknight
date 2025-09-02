@@ -1,0 +1,64 @@
+#!/usr/bin/env node
+/**
+ * Consolidated server, search index builder, and service worker utilities.
+ * Provides minimal implementations to replace legacy test and worker files.
+ */
+
+const express = require('express');
+const helmet = require('helmet');
+const fs = require('fs');
+const path = require('path');
+
+function buildSearchIndex() {
+  const pages = ['index.html', 'contact-center.html', 'it-support.html', 'professional-services.html'];
+  const index = pages.map((file) => {
+    const content = fs.readFileSync(path.join(__dirname, file), 'utf8');
+    return { file, length: content.length };
+  });
+  fs.writeFileSync(path.join(__dirname, 'search-index.json'), JSON.stringify(index));
+  console.log(`Search index built for ${index.length} pages`);
+}
+
+function startServer(port = process.env.PORT || 3000) {
+  const app = express();
+  app.use(helmet());
+  app.use(express.static(__dirname));
+  app.get('/health', (req, res) => res.json({ status: 'ok' }));
+  app.listen(port, () => console.log(`Server running on http://localhost:${port}`));
+}
+
+function writeServiceWorker() {
+  const sw = `self.addEventListener('install', e => self.skipWaiting());\nself.addEventListener('fetch', e => e.respondWith(fetch(e.request)));`;
+  fs.writeFileSync(path.join(__dirname, 'sw.js'), sw);
+  console.log('Service worker written');
+}
+
+async function nonceWorker() {
+  return 'nonce worker placeholder';
+}
+
+async function transitBroker() {
+  return 'transit broker placeholder';
+}
+
+if (require.main === module) {
+  const [, , cmd] = process.argv;
+  switch (cmd) {
+    case 'build-search':
+      buildSearchIndex();
+      break;
+    case 'write-sw':
+      writeServiceWorker();
+      break;
+    case 'nonce-worker':
+      nonceWorker().then(console.log);
+      break;
+    case 'transit-broker':
+      transitBroker().then(console.log);
+      break;
+    default:
+      startServer();
+  }
+}
+
+module.exports = { buildSearchIndex, startServer, writeServiceWorker, nonceWorker, transitBroker };
