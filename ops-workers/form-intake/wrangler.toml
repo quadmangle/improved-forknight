@@ -1,0 +1,13 @@
+name = "form-intake"
+main = "worker-intake.js"
+compatibility_date = "2024-05-01"
+
+[vars]
+ASSET_ID = "ops-form-intake"
+# Set TRANSIT_URL to forward envelopes to the broker (optional)
+# TRANSIT_URL = "https://transit.example.com/core"
+
+[[kv_namespaces]]
+binding = "FORM_DATA"
+id = "00000000000000000000000000000000"
+preview_id = "00000000000000000000000000000000"
